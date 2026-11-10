@@ -36,4 +36,5 @@ terraform*
 # Claude Code
 .claude/
 CLAUDE.md
+CLAUDE.local.md
 AGENTS.md
