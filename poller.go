@@ -22,6 +22,7 @@ var AllowedUpdates = []string{
 	"chat_boost",
 	"removed_chat_boost",
 	"guest_message",
+	"widget_query",
 }
 
 // Poller is a provider of Updates.
@@ -61,6 +62,7 @@ type LongPoller struct {
 	// 		poll
 	// 		poll_answer
 	// 		guest_message
+	// 		widget_query
 	//
 	AllowedUpdates []string `yaml:"allowed_updates"`
 }
