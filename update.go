@@ -29,6 +29,7 @@ type Update struct {
 	EditedBusinessMessage   *Message                 `json:"edited_business_message"`
 	DeletedBusinessMessages *BusinessMessagesDeleted `json:"deleted_business_messages"`
 	GuestMessage            *Message                 `json:"guest_message"`
+	WidgetQuery             *WidgetQuery             `json:"widget_query"`
 	PurchasedPaidMedia      *PaidMediaPurchased      `json:"purchased_paid_media"`
 }
 
@@ -368,6 +369,10 @@ func (b *Bot) ProcessContext(c Context) {
 	}
 	if u.GuestMessage != nil {
 		b.handle(OnGuestMessage, c)
+		return
+	}
+	if u.WidgetQuery != nil {
+		b.handle(OnWidgetQuery, c)
 		return
 	}
 	if u.PurchasedPaidMedia != nil {

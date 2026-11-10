@@ -34,6 +34,9 @@ type Context interface {
 	// Callback returns stored callback if such presented.
 	Callback() *Callback
 
+	// WidgetQuery returns stored widget query if such presented.
+	WidgetQuery() *WidgetQuery
+
 	// Query returns stored query if such presented.
 	Query() *Query
 
@@ -175,6 +178,10 @@ type Context interface {
 	// See AnswerGuest from guest.go.
 	AnswerGuest(result Result) error
 
+	// AnswerWidget sends a response to the current widget query.
+	// See AnswerWidget from widget.go.
+	AnswerWidget(data string) error
+
 	// Respond sends a response for the current callback query.
 	// See Respond from bot.go.
 	Respond(resp ...*CallbackResponse) error
@@ -237,6 +244,10 @@ func (c *nativeContext) Callback() *Callback {
 
 func (c *nativeContext) Query() *Query {
 	return c.u.Query
+}
+
+func (c *nativeContext) WidgetQuery() *WidgetQuery {
+	return c.u.WidgetQuery
 }
 
 func (c *nativeContext) InlineResult() *InlineResult {
@@ -325,6 +336,8 @@ func (c *nativeContext) Sender() *User {
 		return c.Message().Sender
 	case c.u.Query != nil:
 		return c.u.Query.Sender
+	case c.u.WidgetQuery != nil:
+		return c.u.WidgetQuery.Sender
 	case c.u.InlineResult != nil:
 		return c.u.InlineResult.Sender
 	case c.u.ShippingQuery != nil:
@@ -355,6 +368,8 @@ func (c *nativeContext) Chat() *Chat {
 	switch {
 	case c.Message() != nil:
 		return c.Message().Chat
+	case c.u.WidgetQuery != nil:
+		return c.u.WidgetQuery.Chat
 	case c.u.MyChatMember != nil:
 		return c.u.MyChatMember.Chat
 	case c.u.ChatMember != nil:
@@ -408,6 +423,8 @@ func (c *nativeContext) Data() string {
 		return c.u.Callback.Data
 	case c.u.Query != nil:
 		return c.u.Query.Text
+	case c.u.WidgetQuery != nil:
+		return c.u.WidgetQuery.Data
 	case c.u.InlineResult != nil:
 		return c.u.InlineResult.Query
 	case c.u.ShippingQuery != nil:
@@ -621,6 +638,13 @@ func (c *nativeContext) AnswerGuest(result Result) error {
 	}
 	_, err := c.b.AnswerGuest(c.u.GuestMessage, result)
 	return err
+}
+
+func (c *nativeContext) AnswerWidget(data string) error {
+	if c.u.WidgetQuery == nil {
+		return errors.New("telebot: context widget query is nil")
+	}
+	return c.b.AnswerWidget(c.u.WidgetQuery, data)
 }
 
 func (c *nativeContext) Set(key string, value interface{}) {

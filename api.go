@@ -13,6 +13,7 @@ type API interface {
 	Answer(query *Query, resp *QueryResponse) error
 	AnswerGuest(msg *Message, result Result) (*SentGuestMessage, error)
 	AnswerWebApp(query *Query, r Result) (*WebAppMessage, error)
+	AnswerWidget(query *WidgetQuery, data string) error
 	ApproveJoinRequest(chat Recipient, user *User) error
 	Ban(chat *Chat, member *ChatMember, revokeMessages ...bool) error
 	BanSenderChat(chat *Chat, sender Recipient) error
@@ -50,6 +51,7 @@ type API interface {
 	EditMedia(msg Editable, media Inputtable, opts ...interface{}) (*Message, error)
 	EditReplyMarkup(msg Editable, markup *ReplyMarkup) (*Message, error)
 	EditTopic(chat *Chat, topic *Topic) error
+	EditWidgetChatData(msg Editable, data string) error
 	File(file *File) (io.ReadCloser, error)
 	FileByID(fileID string) (File, error)
 	Forward(to Recipient, msg Editable, opts ...interface{}) (*Message, error)
