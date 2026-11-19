@@ -197,6 +197,9 @@ type Message struct {
 	// (Optional) For a rich message, the rich formatted content (Bot API 10.1).
 	RichMessage *RichMessage `json:"rich_message,omitempty"`
 
+	// (Optional) For a message with an HTML widget, the widget itself.
+	Widget *Widget `json:"widget,omitempty"`
+
 	// (Optional) The bot that actually sent the message on behalf of the business account.
 	// Available only for outgoing messages sent on behalf of the connected business account.
 	BusinessBot *User `json:"sender_business_bot"`
