@@ -65,8 +65,15 @@ type LongPoller struct {
 	AllowedUpdates []string `yaml:"allowed_updates"`
 }
 
-// Poll does long polling.
+const (
+	minPollBackoff = 500 * time.Millisecond
+	maxPollBackoff = 30 * time.Second
+)
+
+// Poll does long polling. Failed requests are retried
+// with an exponential backoff.
 func (p *LongPoller) Poll(b *Bot, dest chan Update, stop chan struct{}) {
+	backoff := minPollBackoff
 	for {
 		select {
 		case <-stop:
@@ -77,14 +84,28 @@ func (p *LongPoller) Poll(b *Bot, dest chan Update, stop chan struct{}) {
 		updates, err := b.getUpdates(p.LastUpdateID+1, p.Limit, p.Timeout, p.AllowedUpdates)
 		if err != nil {
 			b.debug(err)
+			select {
+			case <-stop:
+				return
+			case <-time.After(backoff):
+			}
+			backoff = nextPollBackoff(backoff)
 			continue
 		}
+		backoff = minPollBackoff
 
 		for _, update := range updates {
 			p.LastUpdateID = update.ID
 			dest <- update
 		}
 	}
+}
+
+func nextPollBackoff(backoff time.Duration) time.Duration {
+	if backoff*2 > maxPollBackoff {
+		return maxPollBackoff
+	}
+	return backoff * 2
 }
 
 // MiddlewarePoller is a special kind of poller that acts
